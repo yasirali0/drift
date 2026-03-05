@@ -4,14 +4,14 @@ import { PlantType, GrowthStage } from '../life/Flora';
 export type RGB = [number, number, number];
 
 export const BIOME_COLORS: Record<number, RGB> = {
-  [Biome.DEEP_WATER]: [20, 50, 120],
-  [Biome.WATER]: [40, 80, 160],
-  [Biome.SAND]: [210, 200, 150],
-  [Biome.GRASSLAND]: [80, 150, 60],
-  [Biome.FOREST]: [40, 110, 40],
-  [Biome.DENSE_FOREST]: [25, 80, 30],
-  [Biome.MOUNTAIN]: [130, 120, 110],
-  [Biome.SNOW]: [230, 235, 240],
+  [Biome.DEEP_WATER]: [15, 40, 100],
+  [Biome.WATER]: [30, 65, 140],
+  [Biome.SAND]: [220, 210, 160],
+  [Biome.GRASSLAND]: [95, 170, 65],
+  [Biome.FOREST]: [50, 125, 45],
+  [Biome.DENSE_FOREST]: [30, 90, 35],
+  [Biome.MOUNTAIN]: [145, 135, 125],
+  [Biome.SNOW]: [240, 245, 250],
 };
 
 export function getPlantColor(

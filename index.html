@@ -12,12 +12,16 @@
       font-family: 'Courier New', monospace;
       color: #c0c0c0;
     }
-    canvas {
+    #canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
       display: block;
-      image-rendering: pixelated;
       cursor: grab;
     }
-    canvas:active { cursor: grabbing; }
+    #canvas:active { cursor: grabbing; }
     #ui {
       position: absolute;
       top: 16px;
@@ -85,7 +89,7 @@
     </div>
   </div>
   <div id="controls">
-    drag to pan &middot; scroll to zoom &middot; click creature to inspect &middot; [P] pause &middot; [&lt; &gt;] speed &middot; [J] journal &middot; [F] follow &middot; [Esc] deselect &middot; [R] new world
+    left-click drag to orbit &middot; right-click drag to pan &middot; scroll to zoom &middot; click creature to inspect &middot; [P] pause &middot; [&lt; &gt;] speed &middot; [J] journal &middot; [F] follow &middot; [Esc] deselect &middot; [R] new world
   </div>
   <script type="module" src="/src/main.ts"></script>
 </body>

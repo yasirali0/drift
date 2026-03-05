@@ -14,7 +14,9 @@ Close your tab for an hour, and when you return, years have passed in the world.
 
 ## Features
 
+- **3D terrain** — Height-mapped mesh with real elevation rendered in WebGL via Three.js. Orbit, pan, and zoom around the world
 - **Procedural terrain** — Unique island generated from a random seed with oceans, beaches, grasslands, forests, mountains, and snow
+- **Animated ocean** — Semi-transparent water plane with wave vertex shaders and daylight-reactive coloring
 - **Dynamic water** — Rain fills valleys, water flows downhill, erosion slowly reshapes the landscape over centuries
 - **Living flora** — Grass, flowers, bushes, and trees grow, spread, compete, and die according to biome, season, and conditions
 - **Fauna with evolution** — Herbivores graze on plants, predators hunt herbivores. Each creature has a genome (speed, size, vision, metabolism, camouflage). Offspring inherit traits with mutation — natural selection emerges over generations
@@ -23,8 +25,8 @@ Close your tab for an hour, and when you return, years have passed in the world.
 - **Camera follow** — Lock the camera onto a creature and watch its journey in real time
 - **World event journal** — A running log of notable events: population surges, crashes, deforestation, famines, generation milestones, and season changes
 - **Speed controls** — Run the simulation at 1x, 2x, 5x, or 10x speed
-- **Weather & seasons** — Rain systems roll through, temperatures shift, and the cycle of spring through winter shapes all life
-- **Day/night cycle** — Watch dawn break and dusk fall, with lighting that transforms the entire palette
+- **Weather & seasons** — Rain systems roll through as 3D particle streams, temperatures shift, and the cycle of spring through winter shapes all life
+- **Day/night lighting** — Directional sun that arcs across the sky, warm dawn/dusk tones, blue-tinted night with hemisphere and ambient fill
 - **Time warp** — Close the tab, come back later, and discover what happened while you were away. A narrative log tells the story
 - **Persistent state** — Your world is saved automatically and survives page refreshes
 
@@ -41,7 +43,8 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 | Input | Action |
 |-------|--------|
-| Drag  | Pan the camera |
+| Left-drag | Orbit camera |
+| Right-drag | Pan camera |
 | Scroll | Zoom in/out |
 | Click creature | Inspect its stats & genome |
 | `P` | Pause/unpause simulation |
@@ -67,6 +70,7 @@ Leave for a weekend and return to find centuries of ecological change.
 - [x] **Phase 1 — The World** — Procedural terrain, water simulation, weather, seasons, flora, persistence, time-warp
 - [x] **Phase 2 — Life** — Creatures with genetics, predator-prey dynamics, evolution, population tracking
 - [x] **Phase 3 — The Observer** — Creature inspection, camera follow, speed controls, world event journal, visual polish
+- [x] **Phase 4 — A New Dimension** — Three.js WebGL renderer, height-mapped terrain mesh, animated water, orbital camera, 3D rain particles, day/night lighting
 
 ## Roadmap
 
@@ -77,7 +81,6 @@ Planned features:
 - [ ] **Geology** — Volcanic activity, earthquakes, tectonic drift
 - [ ] **Civilizations** — Emergent settlements, trade routes, recorded history
 - [ ] **Sound design** — Ambient audio reflecting the world's state
-- [ ] **3D rendering** — WebGL terrain with real elevation
 - [ ] **Multiplayer** — Shared persistent worlds
 - [ ] **Export & share** — Save and share interesting worlds as seeds
 
@@ -89,7 +92,7 @@ The answer is: something beautiful.
 
 ## Tech
 
-TypeScript + HTML5 Canvas. No frameworks, no runtime dependencies. Just math, time, and pixels.
+TypeScript + Three.js + WebGL. One runtime dependency, zero frameworks. Just math, time, and polygons.
 
 ## License
 

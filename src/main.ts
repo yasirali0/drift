@@ -1,6 +1,5 @@
 import { World, WORLD_SIZE } from './world/World';
-import { Renderer } from './render/Renderer';
-import { Camera } from './render/Camera';
+import { Renderer3D } from './render3d/Renderer3D';
 import { PopulationGraph } from './render/PopulationGraph';
 import { InspectorPanel } from './render/InspectorPanel';
 import { JournalPanel } from './render/JournalPanel';
@@ -11,8 +10,7 @@ const SPEED_OPTIONS = [1, 2, 5, 10] as const;
 
 class DriftApp {
   private world!: World;
-  private renderer!: Renderer;
-  private camera!: Camera;
+  private renderer!: Renderer3D;
   private canvas!: HTMLCanvasElement;
   private saveManager = new SaveManager();
   private timeWarp = new TimeWarp();
@@ -33,8 +31,7 @@ class DriftApp {
     this.uiEl = document.getElementById('ui')!;
     this.timeWarpEl = document.getElementById('time-warp')!;
 
-    this.renderer = new Renderer(this.canvas, WORLD_SIZE);
-    this.camera = new Camera(WORLD_SIZE);
+    this.renderer = new Renderer3D(this.canvas);
     this.popGraph = new PopulationGraph();
     this.inspector = new InspectorPanel();
     this.journalPanel = new JournalPanel();
@@ -54,7 +51,8 @@ class DriftApp {
       this.world = new World(randomSeed());
     }
 
-    this.camera.attach(this.canvas);
+    this.renderer.initWorld(this.world);
+    this.renderer.attach(this.canvas);
     this.setupControls();
     this.setupAutoSave();
 
@@ -71,6 +69,7 @@ class DriftApp {
         if (confirm('Create a new world? The current one will be lost.')) {
           this.saveManager.clear();
           this.world = new World(randomSeed());
+          this.renderer.initWorld(this.world);
           this.inspector.deselect();
           this.popGraph.clearHistory();
         }
@@ -98,7 +97,6 @@ class DriftApp {
         e.clientX,
         e.clientY,
         this.world,
-        this.camera,
       );
       if (creature) {
         this.inspector.select(creature);
@@ -165,13 +163,14 @@ class DriftApp {
       }
     }
 
-    // Follow selected creature
-    this.inspector.updateFollow(this.camera);
+    // Follow selected creature (3D camera)
+    const sel = this.inspector.selectedCreature;
+    if (this.inspector.isFollowing && sel && sel.isAlive) {
+      this.renderer.lookAt(sel.x, sel.y, this.world.terrain);
+    }
 
-    this.camera.update();
-
-    const selectedId = this.inspector.selectedCreature?.id ?? -1;
-    this.renderer.render(this.world, this.camera, selectedId);
+    const selectedId = sel?.id ?? -1;
+    this.renderer.render(this.world, selectedId);
     this.inspector.render();
     this.journalPanel.render(this.world.journal, this.world.clock);
     this.popGraph.render();

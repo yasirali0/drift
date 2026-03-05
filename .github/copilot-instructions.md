@@ -1,6 +1,6 @@
 # Drift — Copilot Instructions
 
-Drift is a persistent browser-based ecosystem simulation (TypeScript + HTML5 Canvas, no frameworks). A procedural island with terrain, water, weather, plants, and evolving creatures runs continuously — including offline via time-warp fast-forward.
+Drift is a persistent browser-based ecosystem simulation (TypeScript + Three.js WebGL). A procedural island with 3D terrain, water, weather, plants, and evolving creatures runs continuously — including offline via time-warp fast-forward.
 
 ## Build & Run
 
@@ -20,7 +20,8 @@ Five subsystems compose the simulation, orchestrated by `DriftApp` in `src/main.
 |-----------|---------------|
 | `src/world/` | Terrain generation, water flow/erosion, weather, clock (seasons, day/night) |
 | `src/life/` | Flora (grid-based plants), Fauna (creature manager), Creature (individual AI + genetics), Behavior (FSM), Genes (crossover/mutation) |
-| `src/render/` | Canvas renderer, camera (pan/zoom), color palette, population graph overlay |
+| `src/render/` | 2D-era modules (Colors palette, InspectorPanel, JournalPanel, PopulationGraph) — HTML overlay UI |
+| `src/render3d/` | Three.js 3D renderer: TerrainMesh, WaterPlane, SkyLighting, CreatureMeshes, OrbitCamera, RainParticles, Renderer3D |
 | `src/persistence/` | localStorage save/load, TimeWarp (offline fast-forward with narrative) |
 | `src/utils/` | Seeded PRNG (`SeededRandom`), Perlin noise |
 
