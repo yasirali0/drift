@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drift — A World That Never Sleeps</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0a0f;
+      overflow: hidden;
+      font-family: 'Courier New', monospace;
+      color: #c0c0c0;
+    }
+    canvas {
+      display: block;
+      image-rendering: pixelated;
+      cursor: grab;
+    }
+    canvas:active { cursor: grabbing; }
+    #ui {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      font-size: 13px;
+      line-height: 1.6;
+      pointer-events: none;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    }
+    #time-warp {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.88);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    #time-warp.active { display: flex; }
+    #time-warp-content {
+      text-align: center;
+      max-width: 520px;
+      padding: 48px;
+    }
+    #time-warp-content h2 {
+      font-size: 22px;
+      margin-bottom: 16px;
+      color: #d0d0d0;
+      letter-spacing: 2px;
+    }
+    #time-warp-content p {
+      font-size: 14px;
+      margin-bottom: 8px;
+      color: #909090;
+    }
+    #time-warp-content .events {
+      margin-top: 24px;
+      text-align: left;
+      font-size: 13px;
+      color: #80b0a0;
+      line-height: 1.8;
+    }
+    #time-warp-content .events div {
+      margin-bottom: 4px;
+    }
+    #controls {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      font-size: 11px;
+      color: #505050;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <div id="ui"></div>
+  <div id="time-warp">
+    <div id="time-warp-content">
+      <h2>while you were away&hellip;</h2>
+      <p id="time-warp-elapsed"></p>
+      <div id="time-warp-events" class="events"></div>
+      <p style="margin-top: 32px; color: #505050; font-size: 11px;">click anywhere to continue</p>
+    </div>
+  </div>
+  <div id="controls">
+    drag to pan &middot; scroll to zoom &middot; [R] new world &middot; [P] pause
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
