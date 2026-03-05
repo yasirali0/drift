@@ -12,6 +12,14 @@ Most simulations pause when you stop watching. Drift doesn't.
 
 Close your tab for an hour, and when you return, years have passed in the world. Forests have grown or receded. Rivers have shifted course. Seasons have cycled dozens of times. The world doesn't need you — but it rewards you for coming back.
 
+<p align="center">
+  <img src="screenshots/overview.png" alt="Full island overview — procedural terrain with forests, beaches, and ocean" width="720" />
+</p>
+
+<p align="center">
+  <img src="screenshots/closeup.png" alt="Close-up view — trees, terrain biomes, and creatures roaming the landscape" width="720" />
+</p>
+
 ## Features
 
 - **3D terrain** — Height-mapped mesh with real elevation rendered in WebGL via Three.js. Orbit, pan, and zoom around the world
