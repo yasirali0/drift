@@ -5,6 +5,7 @@ import { InspectorPanel } from './render/InspectorPanel';
 import { JournalPanel } from './render/JournalPanel';
 import { SaveManager } from './persistence/SaveManager';
 import { TimeWarp, TimeWarpResult } from './persistence/TimeWarp';
+import { AmbientAudio } from './audio/AmbientAudio';
 
 const SPEED_OPTIONS = [1, 2, 5, 10] as const;
 
@@ -22,6 +23,8 @@ class DriftApp {
   private tickAccumulator = 0;
   private lastFrameTime = 0;
   private speedIndex = 0;
+  private audio = new AmbientAudio();
+  private muted = false;
 
   private uiEl!: HTMLElement;
   private timeWarpEl!: HTMLElement;
@@ -61,6 +64,15 @@ class DriftApp {
   }
 
   private setupControls(): void {
+    // Init audio on first user interaction (autoplay policy)
+    const initAudio = () => {
+      this.audio.init();
+      document.removeEventListener('click', initAudio);
+      document.removeEventListener('keydown', initAudio);
+    };
+    document.addEventListener('click', initAudio);
+    document.addEventListener('keydown', initAudio);
+
     document.addEventListener('keydown', (e) => {
       if (e.key === 'p' || e.key === 'P') {
         this.paused = !this.paused;
@@ -88,6 +100,9 @@ class DriftApp {
       }
       if (e.key === 'Escape') {
         this.inspector.deselect();
+      }
+      if (e.key === 'm' || e.key === 'M') {
+        this.muted = !this.muted;
       }
     });
 
@@ -175,6 +190,19 @@ class DriftApp {
     this.journalPanel.render(this.world.journal, this.world.clock);
     this.popGraph.render();
     this.updateUI();
+
+    // Update ambient audio
+    const { clock, weather } = this.world;
+    const windMag = Math.sqrt(weather.windX * weather.windX + weather.windY * weather.windY);
+    this.audio.update({
+      daylight: clock.daylight,
+      hour: clock.hour,
+      season: clock.season,
+      isRaining: weather.isRaining,
+      rainIntensity: weather.rainIntensity,
+      windStrength: Math.min(windMag / 0.5, 1),
+      paused: this.paused || this.muted,
+    }, dt);
 
     requestAnimationFrame((t) => this.loop(t));
   }
