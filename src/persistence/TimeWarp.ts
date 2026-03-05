@@ -21,6 +21,7 @@ export class TimeWarp {
 
     const startYear = world.clock.year;
     const startPlants = world.flora.countPlants();
+    const startFauna = world.fauna.getStats();
     const startHour = world.clock.worldHour;
 
     for (let i = 0; i < ticksToSimulate; i++) {
@@ -28,6 +29,7 @@ export class TimeWarp {
     }
 
     const endPlants = world.flora.countPlants();
+    const endFauna = world.fauna.getStats();
     const elapsedHours = world.clock.worldHour - startHour;
     const elapsedDays = elapsedHours / world.clock.hoursPerDay;
     const elapsedYears =
@@ -76,6 +78,31 @@ export class TimeWarp {
       events.push('Winter has settled upon the land');
     } else if (world.clock.season === 0) {
       events.push('Spring has arrived \u2014 new life stirs');
+    }
+
+    // Fauna events
+    const herbDiff = endFauna.herbivores - startFauna.herbivores;
+    if (Math.abs(herbDiff) > 5) {
+      events.push(
+        herbDiff > 0
+          ? `Herbivore herds grew to ${endFauna.herbivores}`
+          : `Herbivore numbers fell to ${endFauna.herbivores}`,
+      );
+    }
+
+    const predDiff = endFauna.predators - startFauna.predators;
+    if (Math.abs(predDiff) > 2) {
+      events.push(
+        predDiff > 0
+          ? `Predator packs expanded to ${endFauna.predators}`
+          : `Predators declined to ${endFauna.predators}`,
+      );
+    }
+
+    if (endFauna.maxGeneration > startFauna.maxGeneration + 2) {
+      events.push(
+        `Creatures evolved to generation ${endFauna.maxGeneration}`,
+      );
     }
 
     if (capped) {

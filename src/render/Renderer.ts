@@ -8,6 +8,7 @@ import {
   RGB,
 } from './Colors';
 import { PlantType } from '../life/Flora';
+import { Creature, Diet, CreatureState } from '../life/Creature';
 
 export class Renderer {
   private canvas: HTMLCanvasElement;
@@ -19,6 +20,7 @@ export class Renderer {
   private imageData: ImageData;
 
   private rainSeed = 0;
+  private frameTick = 0;
 
   constructor(canvas: HTMLCanvasElement, worldSize: number) {
     this.canvas = canvas;
@@ -51,6 +53,7 @@ export class Renderer {
     const isRaining = world.weather.isRaining;
     const rainIntensity = world.weather.rainIntensity;
     const data = this.imageData.data;
+    this.frameTick++;
 
     for (let y = 0; y < size; y++) {
       for (let x = 0; x < size; x++) {
@@ -62,6 +65,13 @@ export class Renderer {
         // Height shading
         const height = world.terrain.getHeight(x, y);
         const shade = 0.85 + height * 0.3;
+
+        // Ocean shimmer
+        if (biome <= 1) {
+          const shimmer = Math.sin((x + this.frameTick * 0.3) * 0.2) *
+            Math.cos((y + this.frameTick * 0.2) * 0.15) * 12;
+          color[2] = Math.min(255, color[2] + shimmer);
+        }
         color[0] = Math.floor(color[0] * shade);
         color[1] = Math.floor(color[1] * shade);
         color[2] = Math.floor(color[2] * shade);
@@ -111,6 +121,9 @@ export class Renderer {
     const drawY = h / 2 - camera.y * zoom;
     ctx.drawImage(this.worldCanvas, drawX, drawY, drawW, drawH);
 
+    // Creatures
+    this.renderCreatures(world, camera, w, h);
+
     // Rain
     if (isRaining) {
       this.renderRain(w, h, rainIntensity, world.weather.windX);
@@ -140,6 +153,84 @@ export class Renderer {
       ctx.moveTo(rx, ry);
       ctx.lineTo(rx + windX * 5, ry + 8);
       ctx.stroke();
+    }
+  }
+
+  private renderCreatures(
+    world: World,
+    camera: Camera,
+    canvasW: number,
+    canvasH: number,
+  ): void {
+    const ctx = this.ctx;
+    const zoom = camera.zoom;
+    const daylight = world.clock.daylight;
+
+    for (const creature of world.fauna.creatures) {
+      if (!creature.isAlive) continue;
+
+      const [sx, sy] = camera.worldToScreen(
+        creature.x,
+        creature.y,
+        canvasW,
+        canvasH,
+      );
+
+      // Cull off-screen
+      if (sx < -10 || sx > canvasW + 10 || sy < -10 || sy > canvasH + 10) continue;
+
+      const size = Math.max(2, (1 + creature.genes.size * 2) * Math.min(zoom, 6));
+      const g = creature.genes;
+
+      let r: number, gCol: number, b: number;
+      if (creature.diet === Diet.PREDATOR) {
+        r = 140 + g.colorR * 115;
+        gCol = 30 + g.colorG * 60;
+        b = 20 + g.colorB * 50;
+      } else {
+        r = 60 + g.colorR * 80;
+        gCol = 130 + g.colorG * 100;
+        b = 50 + g.colorB * 80;
+      }
+
+      // Dim at night
+      r *= (0.4 + daylight * 0.6);
+      gCol *= (0.4 + daylight * 0.6);
+      b *= (0.4 + daylight * 0.6);
+
+      ctx.fillStyle = `rgb(${Math.floor(r)},${Math.floor(gCol)},${Math.floor(b)})`;
+
+      // Shape: predators are triangular, herbivores are round
+      if (creature.diet === Diet.PREDATOR) {
+        const angle = Math.atan2(creature.dy, creature.dx);
+        ctx.save();
+        ctx.translate(sx, sy);
+        ctx.rotate(angle);
+        ctx.beginPath();
+        ctx.moveTo(size, 0);
+        ctx.lineTo(-size * 0.6, -size * 0.5);
+        ctx.lineTo(-size * 0.6, size * 0.5);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      } else {
+        ctx.beginPath();
+        ctx.arc(sx, sy, size * 0.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // State indicator when zoomed in
+      if (zoom >= 4) {
+        if (creature.state === CreatureState.FLEEING) {
+          ctx.fillStyle = 'rgba(255,100,100,0.7)';
+          ctx.font = `${Math.floor(size)}px monospace`;
+          ctx.fillText('!', sx + size, sy - size);
+        } else if (creature.state === CreatureState.HUNTING) {
+          ctx.fillStyle = 'rgba(255,200,50,0.7)';
+          ctx.font = `${Math.floor(size)}px monospace`;
+          ctx.fillText('\u2694', sx + size, sy - size);
+        }
+      }
     }
   }
 }

@@ -15,6 +15,8 @@ Close your tab for an hour, and when you return, years have passed in the world.
 - **Procedural terrain** — Unique island generated from a random seed with oceans, beaches, grasslands, forests, mountains, and snow
 - **Dynamic water** — Rain fills valleys, water flows downhill, erosion slowly reshapes the landscape over centuries
 - **Living flora** — Grass, flowers, bushes, and trees grow, spread, compete, and die according to biome, season, and conditions
+- **Fauna with evolution** — Herbivores graze on plants, predators hunt herbivores. Each creature has a genome (speed, size, vision, metabolism, camouflage). Offspring inherit traits with mutation — natural selection emerges over generations
+- **Predator-prey dynamics** — Population graph tracks the classic Lotka-Volterra oscillations in real time. Watch herbivore booms trigger predator surges, then crashes
 - **Weather & seasons** — Rain systems roll through, temperatures shift, and the cycle of spring through winter shapes all life
 - **Day/night cycle** — Watch dawn break and dusk fall, with lighting that transforms the entire palette
 - **Time warp** — Close the tab, come back later, and discover what happened while you were away. A narrative log tells the story
@@ -53,8 +55,8 @@ Leave for a weekend and return to find centuries of ecological change.
 
 This is a living project. Planned features:
 
-- [ ] **Fauna** — Creatures with neural-network brains that evolve via natural selection
-- [ ] **Ecosystems** — Predator-prey dynamics, food webs, symbiosis
+- [ ] **Neural-net brains** — Replace hardcoded behaviors with tiny neural networks that evolve via selection
+- [ ] **Food webs** — Multiple trophic levels, symbiosis, parasitism
 - [ ] **Geology** — Volcanic activity, earthquakes, tectonic drift
 - [ ] **Civilizations** — Emergent settlements, trade routes, recorded history
 - [ ] **Sound design** — Ambient audio reflecting the world's state

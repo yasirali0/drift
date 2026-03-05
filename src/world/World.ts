@@ -3,6 +3,7 @@ import { Water } from './Water';
 import { Clock } from './Clock';
 import { Weather } from './Weather';
 import { Flora } from '../life/Flora';
+import { Fauna, FaunaState } from '../life/Fauna';
 import { SeededRandom } from '../utils/random';
 
 export interface WorldState {
@@ -15,6 +16,7 @@ export interface WorldState {
   floraStage: number[];
   floraAge: number[];
   floraHealth: number[];
+  fauna?: FaunaState;
 }
 
 export const WORLD_SIZE = 256;
@@ -26,6 +28,7 @@ export class World {
   readonly clock: Clock;
   readonly weather: Weather;
   readonly flora: Flora;
+  readonly fauna: Fauna;
 
   private rng: SeededRandom;
   private tickCount = 0;
@@ -37,9 +40,11 @@ export class World {
     this.clock = new Clock();
     this.weather = new Weather(seed + 2000);
     this.flora = new Flora(WORLD_SIZE, seed);
+    this.fauna = new Fauna(seed);
     this.rng = new SeededRandom(seed + 3000);
 
     this.flora.seed(this.terrain);
+    this.fauna.seed(this.terrain);
   }
 
   tick(): void {
@@ -68,6 +73,9 @@ export class World {
 
     // Plants
     this.flora.tick(this.terrain, this.water, this.clock, this.weather);
+
+    // Creatures
+    this.fauna.tick(this.terrain, this.flora, this.water);
   }
 
   serialize(): WorldState {
@@ -85,6 +93,7 @@ export class World {
       floraStage: Array.from(this.flora.stage),
       floraAge: Array.from(this.flora.age),
       floraHealth: Array.from(this.flora.health),
+      fauna: this.fauna.serialize(),
     };
   }
 
@@ -103,6 +112,11 @@ export class World {
       world.flora.stage[i] = state.floraStage[i];
       world.flora.age[i] = state.floraAge[i];
       world.flora.health[i] = state.floraHealth[i];
+    }
+
+    if (state.fauna) {
+      const restoredFauna = Fauna.deserialize(state.fauna, state.seed);
+      (world as { fauna: Fauna }).fauna = restoredFauna;
     }
 
     return world;

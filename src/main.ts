@@ -1,6 +1,7 @@
 import { World, WORLD_SIZE } from './world/World';
 import { Renderer } from './render/Renderer';
 import { Camera } from './render/Camera';
+import { PopulationGraph } from './render/PopulationGraph';
 import { SaveManager } from './persistence/SaveManager';
 import { TimeWarp, TimeWarpResult } from './persistence/TimeWarp';
 
@@ -10,6 +11,7 @@ class DriftApp {
   private camera!: Camera;
   private saveManager = new SaveManager();
   private timeWarp = new TimeWarp();
+  private popGraph!: PopulationGraph;
 
   private paused = false;
   private tickAccumulator = 0;
@@ -26,6 +28,7 @@ class DriftApp {
 
     this.renderer = new Renderer(canvas, WORLD_SIZE);
     this.camera = new Camera(WORLD_SIZE);
+    this.popGraph = new PopulationGraph();
 
     // Try restoring a saved world
     const saved = this.saveManager.load();
@@ -112,6 +115,7 @@ class DriftApp {
 
     this.camera.update();
     this.renderer.render(this.world, this.camera);
+    this.popGraph.render();
     this.updateUI();
 
     requestAnimationFrame((t) => this.loop(t));
@@ -120,11 +124,15 @@ class DriftApp {
   private updateUI(): void {
     const { clock, weather } = this.world;
     const plants = this.world.flora.countPlants();
+    const fauna = this.world.fauna.getStats();
     const weatherIcon = weather.isRaining ? '\u{1F327}\uFE0F' : '\u2600\uFE0F';
     const weatherLabel = weather.isRaining
       ? `Rain ${Math.floor(weather.rainIntensity * 100)}%`
       : 'Clear';
     const pauseLabel = this.paused ? ' [PAUSED]' : '';
+
+    // Feed pop graph
+    this.popGraph.sample(fauna.herbivores, fauna.predators, plants.tree);
 
     this.uiEl.innerHTML = `
       <div>${clock.formatDate()}</div>
@@ -134,6 +142,11 @@ class DriftApp {
         \u{1F338} ${plants.flower}
         \u{1F33F} ${plants.bush}
         \u{1F332} ${plants.tree}
+      </div>
+      <div style="margin-top:4px;font-size:11px;color:#8ab">
+        \u{1F407} ${fauna.herbivores}
+        \u{1F43A} ${fauna.predators}
+        &middot; gen ${fauna.maxGeneration}
       </div>
     `;
   }
