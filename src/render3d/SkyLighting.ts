@@ -23,7 +23,7 @@ export class SkyLighting {
     shadowCam.top = worldSize * 0.6;
     shadowCam.bottom = -worldSize * 0.6;
     shadowCam.near = 1;
-    shadowCam.far = 500;
+    shadowCam.far = 800;
     this.sunLight.shadow.bias = -0.001;
     scene.add(this.sunLight);
     scene.add(this.sunLight.target);
@@ -41,12 +41,12 @@ export class SkyLighting {
     scene.add(this.skyDome);
 
     // Fog
-    scene.fog = new THREE.FogExp2(0x88aacc, 0.0008);
+    scene.fog = new THREE.FogExp2(0x88aacc, 0.0004);
     scene.background = new THREE.Color(0x88aacc);
   }
 
   private createSkyDome(): THREE.Mesh {
-    const geo = new THREE.SphereGeometry(1200, 32, 16);
+    const geo = new THREE.SphereGeometry(2400, 32, 16);
     const mat = new THREE.ShaderMaterial({
       side: THREE.BackSide,
       depthWrite: false,

@@ -10,15 +10,15 @@ export class OrbitCamera {
   // Spherical coordinates around target
   private theta = Math.PI * 0.25; // azimuthal angle
   private phi = Math.PI * 0.3; // polar angle (from top)
-  private radius = 120;
+  private radius = 220;
 
   private targetTheta = this.theta;
   private targetPhi = this.phi;
   private targetRadius = this.radius;
 
   // World point to orbit around
-  private target = new THREE.Vector3(128, 0, 128);
-  private targetTarget = new THREE.Vector3(128, 0, 128);
+  private target = new THREE.Vector3(256, 0, 256);
+  private targetTarget = new THREE.Vector3(256, 0, 256);
 
   get orbitTarget(): THREE.Vector3 {
     return this.target;
@@ -28,13 +28,13 @@ export class OrbitCamera {
   private isRightDragging = false;
   private lastMouse = { x: 0, y: 0 };
 
-  private readonly MIN_RADIUS = 20;
-  private readonly MAX_RADIUS = 400;
+  private readonly MIN_RADIUS = 30;
+  private readonly MAX_RADIUS = 700;
   private readonly MIN_PHI = 0.1;
   private readonly MAX_PHI = Math.PI * 0.48;
 
   constructor(worldSize: number) {
-    this.camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.5, 1200);
+    this.camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.5, 2500);
     this.target.set(worldSize / 2, 0, worldSize / 2);
     this.targetTarget.copy(this.target);
     this.updateCameraPosition();
@@ -59,7 +59,7 @@ export class OrbitCamera {
 
       if (this.isDragging) {
         // Orbit
-        this.targetTheta -= dx * 0.005;
+        this.targetTheta += dx * 0.005;
         this.targetPhi = Math.max(
           this.MIN_PHI,
           Math.min(this.MAX_PHI, this.targetPhi - dy * 0.005),

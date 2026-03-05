@@ -32,7 +32,7 @@ export interface FaunaState {
   totalDeaths: number;
 }
 
-const MAX_CREATURES = 600;
+const MAX_CREATURES = 1200;
 const SPAWN_INTERVAL = 200;
 
 export class Fauna {
@@ -49,7 +49,7 @@ export class Fauna {
 
   seed(terrain: Terrain): void {
     // Spawn initial herbivores on grassland/forest
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < 120; i++) {
       const pos = this.findLandPos(terrain);
       if (!pos) continue;
       const genes = herbivoreGenes(this.rng);
@@ -59,7 +59,7 @@ export class Fauna {
     }
 
     // Spawn initial predators — fewer
-    for (let i = 0; i < 15; i++) {
+    for (let i = 0; i < 30; i++) {
       const pos = this.findLandPos(terrain);
       if (!pos) continue;
       const genes = predatorGenes(this.rng);

@@ -21,7 +21,7 @@ export interface WorldState {
   journal?: JournalEntry[];
 }
 
-export const WORLD_SIZE = 256;
+export const WORLD_SIZE = 512;
 
 export class World {
   readonly seed: number;

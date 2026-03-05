@@ -3,8 +3,8 @@ import { Flora, PlantType, GrowthStage } from '../life/Flora';
 import { Terrain, Biome } from '../world/Terrain';
 import { HEIGHT_SCALE } from './TerrainMesh';
 
-const MAX_TREES = 4000;
-const MAX_BUSHES = 3000;
+const MAX_TREES = 10000;
+const MAX_BUSHES = 7000;
 
 /**
  * Instanced 3D vegetation: trees as trunk+canopy, bushes as small spheres.
