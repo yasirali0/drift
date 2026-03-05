@@ -309,7 +309,6 @@ export class CreatureMeshes {
     switch (state) {
       case CreatureState.FLEEING: return IndicatorType.FLEE;
       case CreatureState.HUNTING: return IndicatorType.HUNT;
-      case CreatureState.SEEKING_FOOD: return IndicatorType.SEEK_FOOD;
       case CreatureState.RESTING: return IndicatorType.REST;
       default: return IndicatorType.NONE;
     }
