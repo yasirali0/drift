@@ -1,5 +1,7 @@
 # Drift
 
+> **Disclaimer:** This project is entirely vibe coded. No grand architecture, no design docs, no tests — just vibes. Proceed accordingly.
+
 **A persistent generative world that evolves while you're away.**
 
 Drift is an artificial ecosystem simulation that runs in your browser. It generates a procedural island with terrain, water, weather, and plant life — and it keeps changing even when you close the tab. When you return, you discover what happened in your absence.
