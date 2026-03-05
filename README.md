@@ -59,6 +59,7 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 | `<` / `>` | Decrease / increase speed (1x–10x) |
 | `J` | Toggle world event journal |
 | `F` | Toggle camera follow on selected creature |
+| `M` | Toggle ambient audio mute |
 | `Esc` | Deselect creature |
 | `R` | Generate a new world |
 
@@ -88,7 +89,7 @@ Planned features:
 - [ ] **Food webs** — Multiple trophic levels, symbiosis, parasitism
 - [ ] **Geology** — Volcanic activity, earthquakes, tectonic drift
 - [ ] **Civilizations** — Emergent settlements, trade routes, recorded history
-- [ ] **Sound design** — Ambient audio reflecting the world's state
+- [x] **Sound design** — Procedural ambient audio (wind, rain, birds, crickets, water) reactive to weather/season/time
 - [ ] **Multiplayer** — Shared persistent worlds
 - [ ] **Export & share** — Save and share interesting worlds as seeds
 
