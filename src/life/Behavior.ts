@@ -76,12 +76,80 @@ function doWander(
   rng: SeededRandom,
   size: number,
 ): Creature | null {
-  // Change direction periodically
-  if (c.stateTimer <= 0) {
-    const angle = rng.next() * Math.PI * 2;
-    c.dx = Math.cos(angle);
-    c.dy = Math.sin(angle);
-    c.stateTimer = 20 + rng.nextInt(40);
+  // ─── Boids flocking ───────────────────────────────────
+  // Compute separation / alignment / cohesion from same-diet neighbors
+  const flockRadius = c.visionRadius;
+  const sepDist = 2.5; // minimum desired spacing
+  let sepX = 0, sepY = 0;
+  let alignX = 0, alignY = 0;
+  let cohX = 0, cohY = 0;
+  let neighbors = 0;
+
+  for (const other of all) {
+    if (other.id === c.id || !other.isAlive) continue;
+    if (other.diet !== c.diet) continue;
+
+    const ddx = c.x - other.x;
+    const ddy = c.y - other.y;
+    const d2 = ddx * ddx + ddy * ddy;
+    if (d2 > flockRadius * flockRadius || d2 < 0.001) continue;
+
+    const d = Math.sqrt(d2);
+    neighbors++;
+
+    // Separation: push away from too-close neighbors
+    if (d < sepDist) {
+      const force = (sepDist - d) / sepDist;
+      sepX += (ddx / d) * force;
+      sepY += (ddy / d) * force;
+    }
+
+    // Alignment: accumulate headings
+    alignX += other.dx;
+    alignY += other.dy;
+
+    // Cohesion: accumulate positions
+    cohX += other.x;
+    cohY += other.y;
+  }
+
+  // Blend forces into direction
+  if (neighbors > 0) {
+    // Normalize alignment
+    alignX /= neighbors;
+    alignY /= neighbors;
+
+    // Cohesion → steer toward center of mass
+    cohX = cohX / neighbors - c.x;
+    cohY = cohY / neighbors - c.y;
+
+    // Weights differ by diet: herbivores flock tighter, predators looser
+    const wSep = 1.5;
+    const wAlign = c.isPredator ? 0.8 : 0.5;
+    const wCoh = c.isPredator ? 0.2 : 0.6;
+    const wWander = 0.3;
+
+    // Small random wander nudge
+    const wanderAngle = rng.next() * Math.PI * 2;
+    const wandX = Math.cos(wanderAngle) * wWander;
+    const wandY = Math.sin(wanderAngle) * wWander;
+
+    const steerX = sepX * wSep + alignX * wAlign + cohX * wCoh + wandX;
+    const steerY = sepY * wSep + alignY * wAlign + cohY * wCoh + wandY;
+
+    const mag = Math.sqrt(steerX * steerX + steerY * steerY);
+    if (mag > 0.01) {
+      c.dx = steerX / mag;
+      c.dy = steerY / mag;
+    }
+  } else {
+    // No neighbors — pure random wander
+    if (c.stateTimer <= 0) {
+      const angle = rng.next() * Math.PI * 2;
+      c.dx = Math.cos(angle);
+      c.dy = Math.sin(angle);
+      c.stateTimer = 20 + rng.nextInt(40);
+    }
   }
 
   move(c, size, terrain);

@@ -8,7 +8,7 @@ export interface TimeWarpResult {
 }
 
 export class TimeWarp {
-  static readonly TICKS_PER_SECOND = 5;
+  static readonly TICKS_PER_SECOND = 1;
   static readonly MAX_TICKS = 200_000;
 
   fastForward(world: World, elapsedMs: number): TimeWarpResult {

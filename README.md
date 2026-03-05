@@ -56,7 +56,7 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 | Scroll | Zoom in/out |
 | Click creature | Inspect its stats & genome |
 | `P` | Pause/unpause simulation |
-| `<` / `>` | Decrease / increase speed (1x–10x) |
+| `<` / `>` | Decrease / increase speed (1x–100x) |
 | `J` | Toggle world event journal |
 | `F` | Toggle camera follow on selected creature |
 | `M` | Toggle ambient audio mute |
@@ -67,10 +67,11 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 | Real Time | World Time |
 |-----------|-----------|
-| 1 second  | 5 hours |
-| 1 minute  | 12.5 days |
-| 1 hour    | ~6 years |
-| 1 day     | ~150 years |
+| 1 second  | 1 hour |
+| 24 seconds | 1 day |
+| 1 minute  | 2.5 days |
+| 1 hour    | ~1.25 years |
+| 1 day     | ~30 years |
 
 Leave for a weekend and return to find centuries of ecological change.
 

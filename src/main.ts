@@ -7,7 +7,7 @@ import { SaveManager } from './persistence/SaveManager';
 import { TimeWarp, TimeWarpResult } from './persistence/TimeWarp';
 import { AmbientAudio } from './audio/AmbientAudio';
 
-const SPEED_OPTIONS = [1, 2, 5, 10] as const;
+const SPEED_OPTIONS = [1, 2, 5, 10, 25, 50, 100] as const;
 
 class DriftApp {
   private world!: World;
@@ -155,7 +155,7 @@ class DriftApp {
   }
 
   private get tickRate(): number {
-    return 5 * SPEED_OPTIONS[this.speedIndex];
+    return SPEED_OPTIONS[this.speedIndex];
   }
 
   private loop(time: number): void {
@@ -166,7 +166,7 @@ class DriftApp {
       this.tickAccumulator += dt;
       const interval = 1 / this.tickRate;
       // Cap ticks per frame to avoid spiral of death
-      const maxTicksPerFrame = Math.min(this.tickRate, 50);
+      const maxTicksPerFrame = Math.min(this.tickRate, 200);
       let ticks = 0;
       while (this.tickAccumulator >= interval && ticks < maxTicksPerFrame) {
         this.world.tick();

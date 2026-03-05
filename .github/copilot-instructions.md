@@ -33,7 +33,8 @@ Each `World.tick()` executes in this order — changing it breaks simulation inv
 
 ### Game Loop
 
-- **Simulation**: 5 ticks/second (fixed timestep), each tick = 1 world-hour
+- **Simulation**: 1 tick/second (fixed timestep), each tick = 1 world-hour
+- **Speed options**: 1x, 2x, 5x, 10x, 25x, 50x, 100x
 - **Rendering**: 60 FPS via `requestAnimationFrame`, decoupled from simulation
 - **Auto-save**: every 10 seconds + on page unload
 - **Time warp**: triggers when >5 seconds elapsed since last save (cap: 200,000 ticks)
