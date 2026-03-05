@@ -108,7 +108,7 @@ export class Renderer3D {
     }
 
     // Water animation
-    this.waterPlane.update(elapsed, daylight);
+    this.waterPlane.update(elapsed, daylight, weather.windX, weather.windY);
 
     // Sky & lighting
     this.skyLighting.update(this.scene, daylight, isRaining, rainIntensity, WORLD_SIZE, elapsed);
