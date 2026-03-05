@@ -19,6 +19,10 @@ Close your tab for an hour, and when you return, years have passed in the world.
 - **Living flora** — Grass, flowers, bushes, and trees grow, spread, compete, and die according to biome, season, and conditions
 - **Fauna with evolution** — Herbivores graze on plants, predators hunt herbivores. Each creature has a genome (speed, size, vision, metabolism, camouflage). Offspring inherit traits with mutation — natural selection emerges over generations
 - **Predator-prey dynamics** — Population graph tracks the classic Lotka-Volterra oscillations in real time. Watch herbivore booms trigger predator surges, then crashes
+- **Creature inspection** — Click any creature to see its diet, state, energy, age, generation, and full genome breakdown with visual bars
+- **Camera follow** — Lock the camera onto a creature and watch its journey in real time
+- **World event journal** — A running log of notable events: population surges, crashes, deforestation, famines, generation milestones, and season changes
+- **Speed controls** — Run the simulation at 1x, 2x, 5x, or 10x speed
 - **Weather & seasons** — Rain systems roll through, temperatures shift, and the cycle of spring through winter shapes all life
 - **Day/night cycle** — Watch dawn break and dusk fall, with lighting that transforms the entire palette
 - **Time warp** — Close the tab, come back later, and discover what happened while you were away. A narrative log tells the story
@@ -39,8 +43,13 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 |-------|--------|
 | Drag  | Pan the camera |
 | Scroll | Zoom in/out |
-| `R` | Generate a new world |
+| Click creature | Inspect its stats & genome |
 | `P` | Pause/unpause simulation |
+| `<` / `>` | Decrease / increase speed (1x–10x) |
+| `J` | Toggle world event journal |
+| `F` | Toggle camera follow on selected creature |
+| `Esc` | Deselect creature |
+| `R` | Generate a new world |
 
 ## Time Scale
 
@@ -53,9 +62,15 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 Leave for a weekend and return to find centuries of ecological change.
 
+## Development Phases
+
+- [x] **Phase 1 — The World** — Procedural terrain, water simulation, weather, seasons, flora, persistence, time-warp
+- [x] **Phase 2 — Life** — Creatures with genetics, predator-prey dynamics, evolution, population tracking
+- [x] **Phase 3 — The Observer** — Creature inspection, camera follow, speed controls, world event journal, visual polish
+
 ## Roadmap
 
-This is a living project. Planned features:
+Planned features:
 
 - [ ] **Neural-net brains** — Replace hardcoded behaviors with tiny neural networks that evolve via selection
 - [ ] **Food webs** — Multiple trophic levels, symbiosis, parasitism

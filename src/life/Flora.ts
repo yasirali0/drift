@@ -230,8 +230,8 @@ export class Flora {
     return this.stage[y * this.size + x];
   }
 
-  countPlants(): Record<string, number> {
-    const counts: Record<string, number> = {
+  countPlants(): { grass: number; flower: number; bush: number; tree: number } {
+    const counts = {
       grass: 0,
       flower: 0,
       bush: 0,

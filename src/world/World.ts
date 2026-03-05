@@ -4,6 +4,7 @@ import { Clock } from './Clock';
 import { Weather } from './Weather';
 import { Flora } from '../life/Flora';
 import { Fauna, FaunaState } from '../life/Fauna';
+import { EventJournal, JournalEntry } from './EventJournal';
 import { SeededRandom } from '../utils/random';
 
 export interface WorldState {
@@ -17,6 +18,7 @@ export interface WorldState {
   floraAge: number[];
   floraHealth: number[];
   fauna?: FaunaState;
+  journal?: JournalEntry[];
 }
 
 export const WORLD_SIZE = 256;
@@ -29,6 +31,7 @@ export class World {
   readonly weather: Weather;
   readonly flora: Flora;
   readonly fauna: Fauna;
+  readonly journal: EventJournal;
 
   private rng: SeededRandom;
   private tickCount = 0;
@@ -41,6 +44,7 @@ export class World {
     this.weather = new Weather(seed + 2000);
     this.flora = new Flora(WORLD_SIZE, seed);
     this.fauna = new Fauna(seed);
+    this.journal = new EventJournal();
     this.rng = new SeededRandom(seed + 3000);
 
     this.flora.seed(this.terrain);
@@ -76,6 +80,13 @@ export class World {
 
     // Creatures
     this.fauna.tick(this.terrain, this.flora, this.water);
+
+    // Journal
+    this.journal.check(
+      this.clock,
+      this.fauna.getStats(),
+      this.flora.countPlants(),
+    );
   }
 
   serialize(): WorldState {
@@ -94,6 +105,7 @@ export class World {
       floraAge: Array.from(this.flora.age),
       floraHealth: Array.from(this.flora.health),
       fauna: this.fauna.serialize(),
+      journal: this.journal.serialize(),
     };
   }
 
@@ -117,6 +129,10 @@ export class World {
     if (state.fauna) {
       const restoredFauna = Fauna.deserialize(state.fauna, state.seed);
       (world as { fauna: Fauna }).fauna = restoredFauna;
+    }
+
+    if (state.journal) {
+      (world as { journal: EventJournal }).journal = EventJournal.deserialize(state.journal);
     }
 
     return world;

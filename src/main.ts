@@ -2,33 +2,42 @@ import { World, WORLD_SIZE } from './world/World';
 import { Renderer } from './render/Renderer';
 import { Camera } from './render/Camera';
 import { PopulationGraph } from './render/PopulationGraph';
+import { InspectorPanel } from './render/InspectorPanel';
+import { JournalPanel } from './render/JournalPanel';
 import { SaveManager } from './persistence/SaveManager';
 import { TimeWarp, TimeWarpResult } from './persistence/TimeWarp';
+
+const SPEED_OPTIONS = [1, 2, 5, 10] as const;
 
 class DriftApp {
   private world!: World;
   private renderer!: Renderer;
   private camera!: Camera;
+  private canvas!: HTMLCanvasElement;
   private saveManager = new SaveManager();
   private timeWarp = new TimeWarp();
   private popGraph!: PopulationGraph;
+  private inspector!: InspectorPanel;
+  private journalPanel!: JournalPanel;
 
   private paused = false;
   private tickAccumulator = 0;
   private lastFrameTime = 0;
-  private readonly tickRate = 5;
+  private speedIndex = 0;
 
   private uiEl!: HTMLElement;
   private timeWarpEl!: HTMLElement;
 
   constructor() {
-    const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+    this.canvas = document.getElementById('canvas') as HTMLCanvasElement;
     this.uiEl = document.getElementById('ui')!;
     this.timeWarpEl = document.getElementById('time-warp')!;
 
-    this.renderer = new Renderer(canvas, WORLD_SIZE);
+    this.renderer = new Renderer(this.canvas, WORLD_SIZE);
     this.camera = new Camera(WORLD_SIZE);
     this.popGraph = new PopulationGraph();
+    this.inspector = new InspectorPanel();
+    this.journalPanel = new JournalPanel();
 
     // Try restoring a saved world
     const saved = this.saveManager.load();
@@ -45,7 +54,7 @@ class DriftApp {
       this.world = new World(randomSeed());
     }
 
-    this.camera.attach(canvas);
+    this.camera.attach(this.canvas);
     this.setupControls();
     this.setupAutoSave();
 
@@ -62,7 +71,39 @@ class DriftApp {
         if (confirm('Create a new world? The current one will be lost.')) {
           this.saveManager.clear();
           this.world = new World(randomSeed());
+          this.inspector.deselect();
+          this.popGraph.clearHistory();
         }
+      }
+      if (e.key === 'j' || e.key === 'J') {
+        this.journalPanel.toggle();
+      }
+      if (e.key === 'f' || e.key === 'F') {
+        this.inspector.toggleFollow();
+      }
+      if (e.key === '>' || e.key === '.') {
+        this.speedIndex = Math.min(this.speedIndex + 1, SPEED_OPTIONS.length - 1);
+      }
+      if (e.key === '<' || e.key === ',') {
+        this.speedIndex = Math.max(this.speedIndex - 1, 0);
+      }
+      if (e.key === 'Escape') {
+        this.inspector.deselect();
+      }
+    });
+
+    // Click to select creature
+    this.canvas.addEventListener('click', (e) => {
+      const creature = this.renderer.findCreatureAt(
+        e.clientX,
+        e.clientY,
+        this.world,
+        this.camera,
+      );
+      if (creature) {
+        this.inspector.select(creature);
+      } else {
+        this.inspector.deselect();
       }
     });
 
@@ -100,6 +141,10 @@ class DriftApp {
     this.timeWarpEl.classList.add('active');
   }
 
+  private get tickRate(): number {
+    return 5 * SPEED_OPTIONS[this.speedIndex];
+  }
+
   private loop(time: number): void {
     const dt = (time - this.lastFrameTime) / 1000;
     this.lastFrameTime = time;
@@ -107,14 +152,28 @@ class DriftApp {
     if (!this.paused) {
       this.tickAccumulator += dt;
       const interval = 1 / this.tickRate;
-      while (this.tickAccumulator >= interval) {
+      // Cap ticks per frame to avoid spiral of death
+      const maxTicksPerFrame = Math.min(this.tickRate, 50);
+      let ticks = 0;
+      while (this.tickAccumulator >= interval && ticks < maxTicksPerFrame) {
         this.world.tick();
         this.tickAccumulator -= interval;
+        ticks++;
+      }
+      if (this.tickAccumulator > interval * 2) {
+        this.tickAccumulator = 0;
       }
     }
 
+    // Follow selected creature
+    this.inspector.updateFollow(this.camera);
+
     this.camera.update();
-    this.renderer.render(this.world, this.camera);
+
+    const selectedId = this.inspector.selectedCreature?.id ?? -1;
+    this.renderer.render(this.world, this.camera, selectedId);
+    this.inspector.render();
+    this.journalPanel.render(this.world.journal, this.world.clock);
     this.popGraph.render();
     this.updateUI();
 
@@ -130,13 +189,16 @@ class DriftApp {
       ? `Rain ${Math.floor(weather.rainIntensity * 100)}%`
       : 'Clear';
     const pauseLabel = this.paused ? ' [PAUSED]' : '';
+    const speedLabel = SPEED_OPTIONS[this.speedIndex] > 1
+      ? ` ${SPEED_OPTIONS[this.speedIndex]}x`
+      : '';
 
     // Feed pop graph
     this.popGraph.sample(fauna.herbivores, fauna.predators, plants.tree);
 
     this.uiEl.innerHTML = `
       <div>${clock.formatDate()}</div>
-      <div>${clock.formatTime()} ${weatherIcon} ${weatherLabel}${pauseLabel}</div>
+      <div>${clock.formatTime()} ${weatherIcon} ${weatherLabel}${pauseLabel}${speedLabel}</div>
       <div style="margin-top:8px;font-size:11px;color:#888">
         \u{1F33F} ${plants.grass}
         \u{1F338} ${plants.flower}

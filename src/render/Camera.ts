@@ -78,4 +78,21 @@ export class Camera {
       (wy - this.y) * this.zoom + canvasH / 2,
     ];
   }
+
+  screenToWorld(
+    sx: number,
+    sy: number,
+    canvasW: number,
+    canvasH: number,
+  ): [number, number] {
+    return [
+      (sx - canvasW / 2) / this.zoom + this.x,
+      (sy - canvasH / 2) / this.zoom + this.y,
+    ];
+  }
+
+  lookAt(wx: number, wy: number): void {
+    this.targetX = wx;
+    this.targetY = wy;
+  }
 }

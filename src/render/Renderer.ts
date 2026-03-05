@@ -43,7 +43,7 @@ export class Renderer {
     this.ctx.imageSmoothingEnabled = false;
   }
 
-  render(world: World, camera: Camera): void {
+  render(world: World, camera: Camera, selectedId: number = -1): void {
     const { ctx } = this;
     const w = this.canvas.width;
     const h = this.canvas.height;
@@ -122,7 +122,7 @@ export class Renderer {
     ctx.drawImage(this.worldCanvas, drawX, drawY, drawW, drawH);
 
     // Creatures
-    this.renderCreatures(world, camera, w, h);
+    this.renderCreatures(world, camera, w, h, selectedId);
 
     // Rain
     if (isRaining) {
@@ -161,6 +161,7 @@ export class Renderer {
     camera: Camera,
     canvasW: number,
     canvasH: number,
+    selectedId: number,
   ): void {
     const ctx = this.ctx;
     const zoom = camera.zoom;
@@ -231,6 +232,47 @@ export class Renderer {
           ctx.fillText('\u2694', sx + size, sy - size);
         }
       }
+
+      // Selection ring
+      if (creature.id === selectedId) {
+        ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(sx, sy, size + 3, 0, Math.PI * 2);
+        ctx.stroke();
+        // Pulsing outer ring
+        const pulse = 0.3 + Math.sin(this.frameTick * 0.1) * 0.2;
+        ctx.strokeStyle = `rgba(150,200,255,${pulse})`;
+        ctx.beginPath();
+        ctx.arc(sx, sy, size + 6, 0, Math.PI * 2);
+        ctx.stroke();
+      }
     }
+  }
+
+  findCreatureAt(
+    screenX: number,
+    screenY: number,
+    world: World,
+    camera: Camera,
+  ): Creature | null {
+    const w = this.canvas.width;
+    const h = this.canvas.height;
+    let best: Creature | null = null;
+    let bestDist = 400; // 20px radius squared
+
+    for (const creature of world.fauna.creatures) {
+      if (!creature.isAlive) continue;
+      const [sx, sy] = camera.worldToScreen(creature.x, creature.y, w, h);
+      const dx = sx - screenX;
+      const dy = sy - screenY;
+      const d = dx * dx + dy * dy;
+      if (d < bestDist) {
+        bestDist = d;
+        best = creature;
+      }
+    }
+
+    return best;
   }
 }
