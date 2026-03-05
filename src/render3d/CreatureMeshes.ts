@@ -5,6 +5,47 @@ import { Terrain } from '../world/Terrain';
 import { TerrainMesh } from './TerrainMesh';
 
 const MAX_INSTANCES = 1400; // Slightly above MAX_CREATURES
+const MAX_INDICATORS = 200; // Max state indicators shown at once
+
+/** Create a canvas texture with a text symbol for state indicators. */
+function makeIconTexture(text: string, color: string): THREE.CanvasTexture {
+  const size = 64;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d')!;
+  ctx.clearRect(0, 0, size, size);
+  ctx.font = 'bold 48px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  // Shadow for visibility
+  ctx.shadowColor = 'rgba(0,0,0,0.7)';
+  ctx.shadowBlur = 4;
+  ctx.fillStyle = color;
+  ctx.fillText(text, size / 2, size / 2);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.needsUpdate = true;
+  return tex;
+}
+
+/** State indicator types */
+enum IndicatorType { NONE, FLEE, HUNT, SEEK_FOOD, REST }
+
+const INDICATOR_COLORS: Record<IndicatorType, string> = {
+  [IndicatorType.NONE]: '',
+  [IndicatorType.FLEE]: '#ff4444',
+  [IndicatorType.HUNT]: '#ffcc33',
+  [IndicatorType.SEEK_FOOD]: '#66dd66',
+  [IndicatorType.REST]: '#88aaff',
+};
+
+const INDICATOR_SYMBOLS: Record<IndicatorType, string> = {
+  [IndicatorType.NONE]: '',
+  [IndicatorType.FLEE]: '!',
+  [IndicatorType.HUNT]: '\u2694',  // ⚔
+  [IndicatorType.SEEK_FOOD]: '?',
+  [IndicatorType.REST]: 'z',
+};
 
 /** Build a low-poly quadruped herbivore (rabbit/deer-like). Faces +X. */
 function buildHerbivoreGeo(): THREE.BufferGeometry {
@@ -90,6 +131,11 @@ export class CreatureMeshes {
   readonly predGroup: THREE.InstancedMesh;
   readonly selectionRing: THREE.Mesh;
 
+  // State indicator sprites
+  private indicatorSprites: THREE.Sprite[] = [];
+  private indicatorTextures: Map<IndicatorType, THREE.SpriteMaterial> = new Map();
+  private indicatorCount = 0;
+
   private herbCount = 0;
   private predCount = 0;
   private readonly dummy = new THREE.Object3D();
@@ -130,6 +176,27 @@ export class CreatureMeshes {
     this.selectionRing = new THREE.Mesh(ringGeo, ringMat);
     this.selectionRing.visible = false;
     scene.add(this.selectionRing);
+
+    // State indicator sprite materials
+    for (const type of [IndicatorType.FLEE, IndicatorType.HUNT, IndicatorType.SEEK_FOOD, IndicatorType.REST]) {
+      const tex = makeIconTexture(INDICATOR_SYMBOLS[type], INDICATOR_COLORS[type]);
+      const mat = new THREE.SpriteMaterial({
+        map: tex,
+        transparent: true,
+        depthTest: false,
+        sizeAttenuation: true,
+      });
+      this.indicatorTextures.set(type, mat);
+    }
+
+    // Pre-allocate sprite pool
+    for (let i = 0; i < MAX_INDICATORS; i++) {
+      const sprite = new THREE.Sprite(this.indicatorTextures.get(IndicatorType.FLEE)!);
+      sprite.scale.set(3, 3, 1);
+      sprite.visible = false;
+      scene.add(sprite);
+      this.indicatorSprites.push(sprite);
+    }
   }
 
   update(
@@ -144,6 +211,7 @@ export class CreatureMeshes {
     this.predCount = 0;
     this.herbIds = [];
     this.predIds = [];
+    this.indicatorCount = 0;
 
     let selectionTarget: THREE.Vector3 | null = null;
 
@@ -196,6 +264,19 @@ export class CreatureMeshes {
       if (c.id === selectedId) {
         selectionTarget = pos;
       }
+
+      // State indicator sprite
+      const indType = this.getIndicatorType(c.state);
+      if (indType !== IndicatorType.NONE && this.indicatorCount < MAX_INDICATORS) {
+        const sprite = this.indicatorSprites[this.indicatorCount++];
+        sprite.material = this.indicatorTextures.get(indType)!;
+        sprite.position.copy(pos);
+        sprite.position.y += scale * 3.5;
+        sprite.visible = true;
+        // Pulse the indicator
+        const pulse = 1.0 + Math.sin(frameTick * 0.15 + c.id) * 0.2;
+        sprite.scale.set(2.5 * pulse, 2.5 * pulse, 1);
+      }
     }
 
     this.herbGroup.count = this.herbCount;
@@ -216,6 +297,21 @@ export class CreatureMeshes {
       mat.opacity = 0.4 + Math.sin(frameTick * 0.1) * 0.2;
     } else {
       this.selectionRing.visible = false;
+    }
+
+    // Hide unused indicator sprites
+    for (let i = this.indicatorCount; i < MAX_INDICATORS; i++) {
+      this.indicatorSprites[i].visible = false;
+    }
+  }
+
+  private getIndicatorType(state: CreatureState): IndicatorType {
+    switch (state) {
+      case CreatureState.FLEEING: return IndicatorType.FLEE;
+      case CreatureState.HUNTING: return IndicatorType.HUNT;
+      case CreatureState.SEEKING_FOOD: return IndicatorType.SEEK_FOOD;
+      case CreatureState.RESTING: return IndicatorType.REST;
+      default: return IndicatorType.NONE;
     }
   }
 }
