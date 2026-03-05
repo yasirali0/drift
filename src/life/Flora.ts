@@ -49,29 +49,32 @@ export class Flora {
 
         if (biome === Biome.GRASSLAND) {
           if (this.rng.chance(0.3)) {
-            this.type[i] = this.rng.chance(0.7)
+            const pt = this.rng.chance(0.7)
               ? PlantType.GRASS
               : PlantType.FLOWER;
+            this.type[i] = pt;
             this.stage[i] = GrowthStage.MATURE;
-            this.age[i] = 500;
+            this.age[i] = Math.floor(this.getMaxAge(pt) * 0.5);
             this.health[i] = 200;
           }
         } else if (biome === Biome.FOREST) {
           if (this.rng.chance(0.4)) {
-            this.type[i] = this.rng.chance(0.5)
+            const pt = this.rng.chance(0.5)
               ? PlantType.TREE
               : PlantType.BUSH;
+            this.type[i] = pt;
             this.stage[i] = GrowthStage.MATURE;
-            this.age[i] = 2000;
+            this.age[i] = Math.floor(this.getMaxAge(pt) * 0.5);
             this.health[i] = 220;
           }
         } else if (biome === Biome.DENSE_FOREST) {
           if (this.rng.chance(0.6)) {
-            this.type[i] = this.rng.chance(0.7)
+            const pt = this.rng.chance(0.7)
               ? PlantType.TREE
               : PlantType.BUSH;
+            this.type[i] = pt;
             this.stage[i] = GrowthStage.MATURE;
-            this.age[i] = 5000;
+            this.age[i] = Math.floor(this.getMaxAge(pt) * 0.5);
             this.health[i] = 240;
           }
         }
