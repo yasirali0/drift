@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-const MAX_DROPS = 3000;
+const MAX_DROPS = 4500;
 
 /**
  * Rain as a particle system — thin vertical streaks falling from the sky.

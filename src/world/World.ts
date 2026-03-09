@@ -5,6 +5,7 @@ import { Weather } from './Weather';
 import { Flora } from '../life/Flora';
 import { Fauna, FaunaState } from '../life/Fauna';
 import { EventJournal, JournalEntry } from './EventJournal';
+import { Geology, GeologyState } from './Geology';
 import { SeededRandom } from '../utils/random';
 
 export interface WorldState {
@@ -19,9 +20,10 @@ export interface WorldState {
   floraHealth: number[];
   fauna?: FaunaState;
   journal?: JournalEntry[];
+  geology?: GeologyState;
 }
 
-export const WORLD_SIZE = 512;
+export const WORLD_SIZE = 768;
 
 export class World {
   readonly seed: number;
@@ -32,6 +34,7 @@ export class World {
   readonly flora: Flora;
   readonly fauna: Fauna;
   readonly journal: EventJournal;
+  readonly geology: Geology;
 
   private rng: SeededRandom;
   private tickCount = 0;
@@ -45,6 +48,7 @@ export class World {
     this.flora = new Flora(WORLD_SIZE, seed);
     this.fauna = new Fauna(seed);
     this.journal = new EventJournal();
+    this.geology = new Geology(seed);
     this.rng = new SeededRandom(seed + 3000);
 
     this.flora.seed(this.terrain);
@@ -73,6 +77,11 @@ export class World {
     // Erosion
     if (this.tickCount % 100 === 0) {
       this.water.erode(this.terrain);
+    }
+
+    // Geology events (volcanoes, earthquakes)
+    if (this.tickCount % 5 === 0) {
+      this.geology.tick(this.terrain, this.flora, this.fauna.creatures, this.journal, this.clock);
     }
 
     // Plants
@@ -106,6 +115,7 @@ export class World {
       floraHealth: Array.from(this.flora.health),
       fauna: this.fauna.serialize(),
       journal: this.journal.serialize(),
+      geology: this.geology.serialize(),
     };
   }
 
@@ -116,6 +126,8 @@ export class World {
     for (let i = 0; i < state.terrainHeight.length; i++) {
       world.terrain.height[i] = state.terrainHeight[i];
     }
+    // Re-detect peaks from saved (possibly eroded/modified) heights
+    world.terrain.detectPeaks();
     for (let i = 0; i < state.waterLevel.length; i++) {
       world.water.level[i] = state.waterLevel[i];
     }
@@ -133,6 +145,10 @@ export class World {
 
     if (state.journal) {
       (world as { journal: EventJournal }).journal = EventJournal.deserialize(state.journal);
+    }
+
+    if (state.geology) {
+      (world as { geology: Geology }).geology = Geology.deserialize(state.geology, state.seed);
     }
 
     return world;

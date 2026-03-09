@@ -99,6 +99,7 @@ export class Renderer3D {
         daylight,
         isRaining,
         rainIntensity,
+        world.geology.heat,
       );
     }
 

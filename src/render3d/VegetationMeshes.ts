@@ -4,10 +4,10 @@ import { Flora, PlantType, GrowthStage } from '../life/Flora';
 import { Terrain, Biome } from '../world/Terrain';
 import { HEIGHT_SCALE } from './TerrainMesh';
 
-const MAX_TREES = 10000;
-const MAX_BUSHES = 7000;
-const MAX_GRASS = 12000;
-const MAX_FLOWERS = 6000;
+const MAX_TREES = 15000;
+const MAX_BUSHES = 10000;
+const MAX_GRASS = 18000;
+const MAX_FLOWERS = 9000;
 
 /**
  * Instanced 3D vegetation for all four plant types:
@@ -32,8 +32,8 @@ export class VegetationMeshes {
     this.treeGroup = new THREE.Group();
 
     // Tree trunk — thin cylinder
-    const trunkGeo = new THREE.CylinderGeometry(0.3, 0.4, 3.0, 5);
-    trunkGeo.translate(0, 1.5, 0);
+    const trunkGeo = new THREE.CylinderGeometry(0.12, 0.18, 1.2, 5);
+    trunkGeo.translate(0, 0.6, 0);
     const trunkMat = new THREE.MeshPhongMaterial({ color: 0x8B6914, shininess: 5 });
     this.trunkMesh = new THREE.InstancedMesh(trunkGeo, trunkMat, MAX_TREES);
     this.trunkMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
@@ -42,8 +42,8 @@ export class VegetationMeshes {
     this.treeGroup.add(this.trunkMesh);
 
     // Tree canopy — cone (evergreen look)
-    const canopyGeo = new THREE.ConeGeometry(2.0, 4.0, 6);
-    canopyGeo.translate(0, 5.0, 0);
+    const canopyGeo = new THREE.ConeGeometry(0.8, 1.8, 6);
+    canopyGeo.translate(0, 2.1, 0);
     const canopyMat = new THREE.MeshPhongMaterial({ color: 0xffffff, shininess: 8 });
     this.canopyMesh = new THREE.InstancedMesh(canopyGeo, canopyMat, MAX_TREES);
     this.canopyMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
@@ -69,8 +69,8 @@ export class VegetationMeshes {
     this.treeGroup.add(this.grassMesh);
 
     // Flower stem — thin cylinder
-    const stemGeo = new THREE.CylinderGeometry(0.03, 0.04, 0.8, 4);
-    stemGeo.translate(0, 0.4, 0);
+    const stemGeo = new THREE.CylinderGeometry(0.02, 0.03, 0.4, 4);
+    stemGeo.translate(0, 0.2, 0);
     const stemMat = new THREE.MeshPhongMaterial({ color: 0x4a7a2e, shininess: 3 });
     this.flowerStemMesh = new THREE.InstancedMesh(stemGeo, stemMat, MAX_FLOWERS);
     this.flowerStemMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
@@ -78,8 +78,8 @@ export class VegetationMeshes {
     this.treeGroup.add(this.flowerStemMesh);
 
     // Flower head — small sphere on top
-    const headGeo = new THREE.SphereGeometry(0.18, 5, 4);
-    headGeo.translate(0, 0.9, 0);
+    const headGeo = new THREE.SphereGeometry(0.1, 5, 4);
+    headGeo.translate(0, 0.45, 0);
     const headMat = new THREE.MeshPhongMaterial({ color: 0xffffff, shininess: 15 });
     this.flowerHeadMesh = new THREE.InstancedMesh(headGeo, headMat, MAX_FLOWERS);
     this.flowerHeadMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
@@ -91,14 +91,14 @@ export class VegetationMeshes {
 
   private buildBushGeo(): THREE.BufferGeometry {
     // Several overlapping spheres for a hedge-like cluster
-    const c = new THREE.SphereGeometry(0.6, 5, 4);
-    c.translate(0, 0.5, 0);
-    const l = new THREE.SphereGeometry(0.45, 5, 4);
-    l.translate(-0.35, 0.4, 0.2);
-    const r = new THREE.SphereGeometry(0.45, 5, 4);
-    r.translate(0.35, 0.4, -0.2);
-    const t = new THREE.SphereGeometry(0.35, 5, 4);
-    t.translate(0, 0.85, 0);
+    const c = new THREE.SphereGeometry(0.35, 5, 4);
+    c.translate(0, 0.3, 0);
+    const l = new THREE.SphereGeometry(0.25, 5, 4);
+    l.translate(-0.2, 0.25, 0.12);
+    const r = new THREE.SphereGeometry(0.25, 5, 4);
+    r.translate(0.2, 0.25, -0.12);
+    const t = new THREE.SphereGeometry(0.2, 5, 4);
+    t.translate(0, 0.5, 0);
     const merged = mergeGeometries([c, l, r, t]);
     merged.computeVertexNormals();
     return merged;
@@ -107,15 +107,15 @@ export class VegetationMeshes {
   private buildGrassGeo(): THREE.BufferGeometry {
     // Cluster of 3 thin cones as grass blades
     const blade = (ox: number, oz: number, rot: number) => {
-      const g = new THREE.ConeGeometry(0.08, 0.6, 3);
+      const g = new THREE.ConeGeometry(0.05, 0.35, 3);
       g.rotateY(rot);
-      g.translate(ox, 0.3, oz);
+      g.translate(ox, 0.175, oz);
       return g;
     };
     const merged = mergeGeometries([
       blade(0, 0, 0),
-      blade(0.12, 0.08, 0.8),
-      blade(-0.1, 0.06, 1.6),
+      blade(0.07, 0.05, 0.8),
+      blade(-0.06, 0.04, 1.6),
     ]);
     merged.computeVertexNormals();
     return merged;
@@ -148,10 +148,15 @@ export class VegetationMeshes {
         const y = h * HEIGHT_SCALE;
         const d = 0.5 + daylight * 0.5;
 
-        if (ptype === PlantType.TREE && treeCount < MAX_TREES) {
+        // Treeline: no trees/bushes on mountain or snow biomes
+        const aboveTreeline = biome === Biome.MOUNTAIN || biome === Biome.SNOW;
+        // Altitude-based scale reduction: trees shrink approaching treeline
+        const altFade = h < 0.55 ? 1.0 : h < 0.70 ? 1.0 - (h - 0.55) * 2.0 : 0.3;
+
+        if (ptype === PlantType.TREE && treeCount < MAX_TREES && !aboveTreeline) {
           const ti = treeCount++;
           const maturity = stage >= GrowthStage.MATURE ? 1.0 : 0.6;
-          const scale = 0.5 + maturity * 0.7;
+          const scale = (0.5 + maturity * 0.7) * altFade;
 
           this.dummy.position.set(ix, y, iy);
           this.dummy.scale.set(scale, scale * (0.8 + maturity * 0.4), scale);
@@ -172,10 +177,10 @@ export class VegetationMeshes {
           this.tmpColor.setRGB(0.35 * d, 0.22 * d, 0.08 * d);
           this.trunkMesh.setColorAt(ti, this.tmpColor);
 
-        } else if (ptype === PlantType.BUSH && bushCount < MAX_BUSHES) {
+        } else if (ptype === PlantType.BUSH && bushCount < MAX_BUSHES && !aboveTreeline) {
           const bi = bushCount++;
           const maturity = stage >= GrowthStage.MATURE ? 1.0 : 0.7;
-          const scale = 0.6 + maturity * 0.6;
+          const scale = (0.6 + maturity * 0.6) * altFade;
 
           this.dummy.position.set(ix, y, iy);
           this.dummy.scale.setScalar(scale);

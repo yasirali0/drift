@@ -20,7 +20,7 @@ Six subsystems compose the simulation, orchestrated by `DriftApp` in `src/main.t
 
 | Directory | Responsibility |
 |-----------|---------------|
-| `src/world/` | Terrain generation (512×512), water flow/erosion, weather, clock (seasons, day/night), EventJournal |
+| `src/world/` | Terrain generation (768×768), water flow/erosion, weather, clock (seasons, day/night), EventJournal |
 | `src/life/` | Flora (grid-based plants), Fauna (creature manager), Creature (individual AI + genetics), Behavior (FSM), Genes (crossover/mutation) |
 | `src/render3d/` | Three.js 3D renderer: TerrainMesh, WaterPlane, SkyLighting, CreatureMeshes, VegetationMeshes, OrbitCamera, RainParticles, Renderer3D |
 | `src/render/` | HTML overlay UI: PopulationGraph, InspectorPanel (creature details), JournalPanel (event log), Colors palette. Legacy Camera.ts/Renderer.ts are deprecated |
@@ -70,10 +70,10 @@ Not everything updates every frame — staggering is intentional for performance
 
 ### Performance Patterns
 - **Typed arrays** (Float32Array, Uint8Array, Uint16Array) for all grid data — never plain arrays for grids
-- **Row-major grid indexing**: always `array[y * WORLD_SIZE + x]` where `WORLD_SIZE = 512`
+- **Row-major grid indexing**: always `array[y * WORLD_SIZE + x]` where `WORLD_SIZE = 768`
 - **Staggered updates**: Flora processes 1/4 of the grid per tick (`tickCounter % 4`)
 - **Vegetation sampling**: every 2nd cell to avoid overdraw at high density
-- **Instance caps**: creatures 1400, trees 10k, bushes 7k, grass 12k, flowers 6k, rain drops 3k
+- **Instance caps**: creatures 2000, trees 15k, bushes 10k, grass 18k, flowers 9k, rain drops 4.5k
 
 ### Audio Patterns
 - Web Audio API initialized on first user gesture (autoplay policy)

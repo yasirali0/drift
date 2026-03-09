@@ -58,6 +58,7 @@ export class TerrainMesh {
     daylight: number,
     isRaining: boolean,
     rainIntensity: number,
+    heat?: Uint8Array,
   ): void {
     const s = this.size;
     const pos = this.geometry.attributes.position;
@@ -124,6 +125,24 @@ export class TerrainMesh {
             Math.floor(color[1] * dim),
             Math.floor(Math.min(255, color[2] * dim + rainIntensity * 15)),
           ];
+        }
+
+        // Lava / geological heat glow
+        if (heat) {
+          const hv = heat[vi];
+          if (hv > 0) {
+            const t = hv / 255; // 0-1 heat intensity
+            // Blend toward orange-red: hot = bright orange, cooling = dark red
+            const lr = Math.floor(255 * t);
+            const lg = Math.floor(120 * t * t); // Orange fades faster
+            const lb = Math.floor(20 * t * t * t);
+            const blend = Math.min(1.0, t * 1.5);
+            color = [
+              Math.floor(color[0] * (1 - blend) + lr * blend),
+              Math.floor(color[1] * (1 - blend) + lg * blend),
+              Math.floor(color[2] * (1 - blend) + lb * blend),
+            ];
+          }
         }
 
         col.setXYZ(vi, color[0] / 255, color[1] / 255, color[2] / 255);

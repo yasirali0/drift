@@ -4,7 +4,7 @@ import { Creature, Diet, CreatureState } from '../life/Creature';
 import { Terrain } from '../world/Terrain';
 import { TerrainMesh } from './TerrainMesh';
 
-const MAX_INSTANCES = 1400; // Slightly above MAX_CREATURES
+const MAX_INSTANCES = 2000; // Slightly above MAX_CREATURES
 const MAX_INDICATORS = 200; // Max state indicators shown at once
 
 /** Create a canvas texture with a text symbol for state indicators. */
